@@ -1,0 +1,95 @@
+body {
+  color: #0f0f0f;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+h1 {
+  font-size: 1.875rem;       /* text-3xl */
+  font-weight: 700;
+  text-align: center;
+  margin-top: 5rem;
+  margin-bottom: 0.5rem;     /* This controls bottom spacing */
+}
+
+
+input[type="file"] {
+  display: block;
+  border: 5px solid #140C64;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  max-width: 100%;
+}
+
+input[type="text"] {
+  max-width: 36rem;
+  border: 5px solid #140C64;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #140C64;
+  background-color: #f0f9ff;
+}
+
+button {
+  background-color: #ee2d3d;
+  color: white;
+  /* padding: 0.30rem 1.5rem;   Increased padding */
+  font-size: 1.125rem;        /* text-lg (~18px) */
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+video {
+  width: 100%;
+  max-width: 36rem;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+}
+
+.answer-box {
+  background-color: #fef2f8;
+  border: 1px solid #140C64;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.5rem; /* text-2xl */
+  }
+
+  
+  button {
+    width: 100%;
+  }
+}
+
+.small-round-button {
+  background-color: #ee2d3d;   /* Blue background */
+  color: white;
+  font-weight: 400;            /* Normal font weight */
+  font-size: 16px;             /* Smaller font */
+  padding: 8px 16px;            /* Small vertical & horizontal padding */
+  border: none;
+  border-radius: 9999px;       /* Fully rounded (pill shape) */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.small-round-button:hover {
+  background-color: #1d4ed8;   /* Darker blue on hover */
+}

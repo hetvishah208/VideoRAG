@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Global Link Styles */
+a {
+  font-weight: 500;
+  color: #1086e7;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #0a6bbd;
+  text-decoration: underline;
+}
+
+/* Body Defaults */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Global Heading */
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+

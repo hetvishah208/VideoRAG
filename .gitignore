@@ -1,0 +1,34 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+myenv/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log*
+dist/
+build/
+
+# Generated media / scratch output
+Frames/
+Audio/
+Transcript/
+Summary/
+*.mp3
+*.mp4
+*.jpg
+!frontend/public/*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

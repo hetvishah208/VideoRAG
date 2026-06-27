@@ -1,0 +1,26 @@
+# --- API ---
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+
+# --- Vector store ---
+qdrant-client
+
+# --- Embeddings / indexing ---
+sentence-transformers
+torch
+torchvision
+llama-index-core
+langchain
+
+# --- Media processing ---
+opencv-python
+moviepy
+imageio
+imageio-ffmpeg
+faster-whisper
+Pillow
+
+# --- LLM client (OpenRouter is OpenAI-compatible) ---
+openai
