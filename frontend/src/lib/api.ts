@@ -1,14 +1,5 @@
-// Centralized API client. Reads base URL + key from Vite env vars so no
-// secrets are hardcoded in components. See frontend/.env.example.
+// Centralized API client. Reads base URL from Vite env vars.
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
-const API_KEY = import.meta.env.VITE_API_KEY ?? "";
-
-function headers(): HeadersInit {
-  return {
-    "Content-Type": "application/json",
-    "X-API-Key": API_KEY,
-  };
-}
 
 export interface QueryResult {
   synthesized_answer: string;
@@ -19,11 +10,12 @@ export interface QueryResult {
 export async function queryVideos(query: string): Promise<QueryResult> {
   const res = await fetch(`${BASE_URL}/query`, {
     method: "POST",
-    headers: headers(),
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),
   });
   if (!res.ok) {
-    throw new Error(`Query failed (${res.status})`);
+    const err = await res.json();
+    throw new Error(err.detail || `Query failed (${res.status})`);
   }
   return res.json();
 }

@@ -1,7 +1,7 @@
 """Chunk transcripts and load keyframes into embedded LlamaIndex nodes."""
 import os
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_index.core.schema import TextNode, ImageNode
 
 

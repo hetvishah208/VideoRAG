@@ -29,14 +29,10 @@ class QdrantHandler:
         self.client.upsert(collection_name=self.collection_name, points=points)
 
     def search(self, vector, top_k=5):
-        """Return scored payloads for the nearest vectors.
-
-        We over-fetch (top_k * 10) so the caller can post-filter text vs. image
-        nodes and still have enough of each modality to work with.
-        """
-        return self.client.search(
+        results = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=vector,
+            query=vector,
             limit=top_k * 10,
             with_payload=True,
         )
+        return results.points

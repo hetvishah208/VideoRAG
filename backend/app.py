@@ -1,17 +1,19 @@
 """FastAPI surface for VideoRAG.
 
 Endpoints:
-  POST /ingest  -> process a folder of videos into the index
+  POST /upload  -> accept a video file, ingest it, return a preview URL
   POST /query   -> ask a question against the indexed videos
-
-A simple X-API-Key header guards both endpoints. State (the Qdrant index and
-embedder) is held in-process for the lifetime of the server.
+  GET  /videos/{filename} -> serve uploaded videos back to the frontend
+  GET  /health  -> liveness check
 """
 import os
+import shutil
+import tempfile
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 import config
@@ -29,21 +31,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-process state populated by /ingest and consumed by /query.
+# In-process state populated by /upload and consumed by /query.
 _state = {"qdrant": None, "embedder": None}
 
-
-def verify_api_key(x_api_key: str = Header(...)):
-    if not config.API_KEY or x_api_key != config.API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API key",
-        )
-
-
-class IngestRequest(BaseModel):
-    video_folder: str
-    working_dir: str
+# Persistent directories for uploaded videos and processing artifacts.
+UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "videorag_uploads")
+WORK_DIR = os.path.join(tempfile.gettempdir(), "videorag_work")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(WORK_DIR, exist_ok=True)
 
 
 class QueryRequest(BaseModel):
@@ -55,15 +50,59 @@ def health():
     return {"status": "ok", "indexed": _state["qdrant"] is not None}
 
 
-@app.post("/ingest")
-def ingest(req: IngestRequest, _=Depends(verify_api_key)):
-    qdrant, embedder = ingest_videos(req.video_folder, req.working_dir)
-    _state["qdrant"], _state["embedder"] = qdrant, embedder
-    return {"status": "indexed", "video_folder": req.video_folder}
+@app.post("/upload")
+async def upload_video(file: UploadFile = File(...)):
+    """Accept a video file, save it, run the full ingestion pipeline,
+    and return a URL the frontend can use for video preview."""
+
+    if not file.filename or not file.filename.lower().endswith(".mp4"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only .mp4 files are supported.",
+        )
+
+    # Clear previous uploads and work artifacts for a clean run.
+    for d in (UPLOAD_DIR, WORK_DIR):
+        shutil.rmtree(d, ignore_errors=True)
+        os.makedirs(d, exist_ok=True)
+
+    # Save the uploaded file to disk.
+    save_path = os.path.join(UPLOAD_DIR, file.filename)
+    with open(save_path, "wb") as f:
+        while chunk := await file.read(1024 * 1024):  # 1 MB chunks
+            f.write(chunk)
+
+    # Run the full ingestion pipeline.
+    try:
+        qdrant, embedder = ingest_videos(UPLOAD_DIR, WORK_DIR)
+        _state["qdrant"], _state["embedder"] = qdrant, embedder
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ingestion failed: {str(e)}",
+        )
+
+    return {
+        "status": "indexed",
+        "filename": file.filename,
+        "url": f"/videos/{file.filename}",
+    }
+
+
+@app.get("/videos/{filename}")
+def serve_video(filename: str):
+    """Serve an uploaded video file back to the frontend for preview."""
+    path = os.path.join(UPLOAD_DIR, filename)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Video not found")
+    return FileResponse(path, media_type="video/mp4")
 
 
 @app.post("/query")
-def query(req: QueryRequest, _=Depends(verify_api_key)):
+def query(req: QueryRequest):
     if _state["qdrant"] is None:
-        raise HTTPException(status_code=409, detail="No videos indexed yet. Call /ingest first.")
+        raise HTTPException(
+            status_code=409,
+            detail="No videos indexed yet. Upload a video first.",
+        )
     return answer_query(_state["qdrant"], _state["embedder"], req.query)

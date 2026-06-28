@@ -3,6 +3,7 @@ fastapi
 uvicorn[standard]
 pydantic
 python-dotenv
+python-multipart
 
 # --- Vector store ---
 qdrant-client
@@ -12,7 +13,7 @@ sentence-transformers
 torch
 torchvision
 llama-index-core
-langchain
+langchain-text-splitters
 
 # --- Media processing ---
 opencv-python

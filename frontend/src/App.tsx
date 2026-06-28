@@ -64,14 +64,7 @@ function App() {
 
         {/* Right Sidebar */}
         <aside className="w-64 bg-gray-300 p-4 shadow-lg overflow-y-auto flex flex-col items-center">
-          <button
-            className="small-round-button self-end mb-4"
-            onClick={() => alert("Sign In clicked")}
-          >
-            Sign In
-          </button>
-
-          <div className="mt-10 w-full flex flex-col items-center">
+          <div className="mt-4 w-full flex flex-col items-center">
             <h2 className="text-2xl font-semibold mb-4">Video Preview</h2>
 
             {videoUrl ? (
